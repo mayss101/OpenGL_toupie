@@ -5,8 +5,11 @@
 #include "sphere.h"
 #include "cone.h"
 #include "etoile.h"
+#include "textured_cone.h"
+#include "lighting_cone.h"
 #include "node.h"
 #include "shader.h"
+#include "texture.h"
 #include <string>
 
 #ifndef SHADER_DIR
@@ -20,8 +23,14 @@ int main()
 
     // get shader directory
     std::string shader_dir = SHADER_DIR;
-
     Shader *color_shader = new Shader(shader_dir + "color.vert", shader_dir + "color.frag");
+
+
+    Shader *texture_shader = new Shader(shader_dir + "texture.vert", shader_dir + "texture.frag");
+    Texture *texture = new Texture("./textures/texture3.jpg");
+    
+    Shader *phong_shader = new Shader(shader_dir + "phong.vert", shader_dir + "phong.frag");
+
 
 	//toupie1
     glm::mat4 toupie1_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f))
@@ -45,19 +54,35 @@ int main()
     Node* toupie3 = new Node(toupie3_mat);
     
     // Pointe1
-    Shape* pointehaute1 = new Cone(color_shader);
+    Shape* pointehaute1 = new TexturedCone(texture_shader, texture);
     glm::mat4 pointehaute1_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.5f, 0.0f))
         * glm::scale(glm::mat4(1.0f), glm::vec3(0.7f, 1.2f, 0.7f))
         * glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     Node* pointehaute1_node = new Node(pointehaute1_mat);
     pointehaute1_node->add(pointehaute1);
-    
+       
     Shape* pointebasse1 = new Cone(color_shader);
     glm::mat4 pointebasse1_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, 0.0f))
         * glm::scale(glm::mat4(1.0f), glm::vec3(0.7f, 1.2f, 0.7f))
         * glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     Node* pointebasse1_node = new Node(pointebasse1_mat);
     pointebasse1_node->add(pointebasse1);
+    
+    //Pointe1Lumiere
+    Shape* pointehautelumiere1 = new LightingCone(phong_shader, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat4 pointehautelumiere1_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.5f, 0.0f))
+        * glm::scale(glm::mat4(1.0f), glm::vec3(0.7f, 1.2f, 0.7f))
+        * glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        
+    Node* pointehautelumiere1_node = new Node(pointehautelumiere1_mat);
+    pointehautelumiere1_node->add(pointehautelumiere1);
+    
+    Shape* pointebasselumiere1 = new LightingCone(phong_shader, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat4 pointebasselumiere1_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, 0.0f))
+        * glm::scale(glm::mat4(1.0f), glm::vec3(0.7f, 1.2f, 0.7f))
+        * glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    Node* pointebasselumiere1_node = new Node(pointebasselumiere1_mat);
+    pointebasselumiere1_node->add(pointebasselumiere1);
 
 	// Pointe2
     Shape* pointehaute2 = new Cone(color_shader);
@@ -123,6 +148,8 @@ int main()
     // Add the root node to the scene
     toupie1->add(pointehaute1_node);
     toupie1->add(pointebasse1_node);
+    //toupie1->add(pointehautelumiere1_node);
+    //toupie1->add(pointebasselumiere1_node);
     toupie2->add(pointehaute2_node);
     toupie2->add(pointebasse2_node);
     toupie2->add(rond_node);
@@ -132,7 +159,7 @@ int main()
     toupie3->add(pointebassebase3_node);
     toupie3->add(etoile_node);
 
-    viewer.scene_root->add(toupie3);
+    viewer.scene_root->add(toupie1);
 
     viewer.run();
 }
